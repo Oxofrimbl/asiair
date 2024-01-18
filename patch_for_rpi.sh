@@ -14,16 +14,16 @@ fake_licence=$(cat <<EOF
 EOF
 )
 
-fake_cpuinfo=
-
-md5=($(md5sum $1))
+md5=($(md5sum /home/pi/ASIAIR/bin/zwoair_imager))
 tempfile=$(mktemp -t tmp.XXXXXXXXXX)
 timestamp=$(date +%s)
 
 echo $binary_patch > $tempfile
 
 if [[ $md5 != "ba4e082adb279175f33fe61ed46e4cd3" ]]; then
-        echo "File verification failed, just works with 2.1 (?)"
+        echo "File verification failed, just works with 2.1 (dpkg asiair version 1.0.0-1074)"
+        echo "current version is:"
+        dpkg -l asiair
         exit -1
 fi
 
@@ -44,12 +44,13 @@ echo $fake_license > /boot/zwoair_license
 echo $fake_license > /home/pi/.ZWO/zwoair_license
 
 #echo "Patching binary"
-xxd -c1 -r $tempfile $1
+xxd -c1 -r $tempfile /home/pi/ASIAIR/bin/zwoair_imager
 
 #Creating Fake CPUID file
 sed -e "s/.*Serial.*/Serial          : 0000000000000000/" /proc/cpuinfo > /boot/fake_cpuinfo
-echo "Patching should have been successeded, howeer persist this line in rc.local before asiair gets started"
+
 #TODO make this automatic
+echo "Patching should have been successeded, howeer persist this line in rc.local before asiair gets started"
 sudo mount --bind /boot/fake_cpuinfo /proc/cpuinfo
 echo "sudo mount --bind /boot/fake_cpuinfo /proc/cpuinfo"
 
